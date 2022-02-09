@@ -595,7 +595,7 @@ func (t *TBtree) readNodeFrom(r *appendable.Reader) (node, error) {
 }
 
 func (t *TBtree) readInnerNodeFrom(r *appendable.Reader) (*innerNode, error) {
-	childCount, err := r.ReadUint32()
+	childCount, err := r.ReadUint16()
 	if err != nil {
 		return nil, err
 	}
@@ -622,7 +622,7 @@ func (t *TBtree) readInnerNodeFrom(r *appendable.Reader) (*innerNode, error) {
 }
 
 func (t *TBtree) readNodeRefFrom(r *appendable.Reader) (*nodeRef, error) {
-	minKeySize, err := r.ReadUint32()
+	minKeySize, err := r.ReadUint16()
 	if err != nil {
 		return nil, err
 	}
@@ -652,7 +652,7 @@ func (t *TBtree) readNodeRefFrom(r *appendable.Reader) (*nodeRef, error) {
 }
 
 func (t *TBtree) readLeafNodeFrom(r *appendable.Reader) (*leafNode, error) {
-	valueCount, err := r.ReadUint32()
+	valueCount, err := r.ReadUint16()
 	if err != nil {
 		return nil, err
 	}
@@ -663,7 +663,7 @@ func (t *TBtree) readLeafNodeFrom(r *appendable.Reader) (*leafNode, error) {
 	}
 
 	for c := 0; c < int(valueCount); c++ {
-		ksize, err := r.ReadUint32()
+		ksize, err := r.ReadUint16()
 		if err != nil {
 			return nil, err
 		}
@@ -674,7 +674,7 @@ func (t *TBtree) readLeafNodeFrom(r *appendable.Reader) (*leafNode, error) {
 			return nil, err
 		}
 
-		vsize, err := r.ReadUint32()
+		vsize, err := r.ReadUint16()
 		if err != nil {
 			return nil, err
 		}
@@ -1446,10 +1446,10 @@ func (n *innerNode) ts() uint64 {
 func (n *innerNode) size() int {
 	size := 1 // Node type
 
-	size += 4 // Child count
+	size += 2 // Child count
 
 	for _, c := range n.nodes {
-		size += 4               // minKey length
+		size += 2               // minKey length
 		size += len(c.minKey()) // minKey
 		size += 8               // Ts
 		size += 8               // Offset
@@ -1894,12 +1894,12 @@ func (l *leafNode) ts() uint64 {
 func (l *leafNode) size() int {
 	size := 1 // Node type
 
-	size += 4 // kv count
+	size += 2 // kv count
 
 	for _, kv := range l.values {
-		size += 4             // Key length
+		size += 2             // Key length
 		size += len(kv.key)   // Key
-		size += 4             // Value length
+		size += 2             // Value length
 		size += len(kv.value) // Value
 		size += 8             // Ts
 		size += 8             // hOff
